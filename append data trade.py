@@ -62,7 +62,7 @@ def backup_postgres_table(engine, schema, table_name):
         print(f"❌ Gagal membuat backup tabel: {e}")
         send_telegram_message(f"❌ Gagal membuat backup tabel: {e}")
 
-# Koneksi ke Impala
+# sambungan ke Impala
 impala_conn = connect(
     host=os.getenv("I_HOST"),
     port=21050,
@@ -79,7 +79,7 @@ encoded_password = quote_plus(os.getenv("POSTGRES_PASSWORD"))
 postgres_connection_string = f'postgresql+psycopg2://{os.getenv("POSTGRES_USER")}:{encoded_password}@{os.getenv("POSTGRES_HOST")}:5432/{os.getenv("POSTGRES_DATABASE")}'
 postgres_engine = create_engine(postgres_connection_string)
 
-# Nama tabel PostgreSQL
+# Nama jadual PostgreSQL
 postgres_table = 'md_external_sector_active_copy1_backup_20250515_142331'
 postgres_schema = 'ADEXTR'
 
@@ -112,7 +112,7 @@ try:
             print(f"🔍 Data yang ditemukan: year = {last_year}, month_code = {last_month}")
             send_telegram_message(f"🔍 Data yang ditemukan: year = {last_year}, month_code = {last_month}")
 
-            # Backup tabel sebelum menghapus data
+            # Backup jadual sebelum menghapus data
             print("📦 Membuat backup tabel sebelum menghapus data...")
             backup_postgres_table(postgres_engine, postgres_schema, postgres_table)
 
@@ -129,7 +129,7 @@ try:
             print("ℹ️ Tidak ada data dengan status_data_code = '03' yang ditemukan untuk dihapus.")
             send_telegram_message("ℹ️ Tidak ada data dengan status_data_code = '03' yang ditemukan untuk dihapus.")
 
-    # Backup tabel PostgreSQL sebelum append data baru
+    # Backup jadual PostgreSQL sebelum append data baru
     print("📦 Membuat backup tabel PostgreSQL sebelum append data...")
     backup_postgres_table(postgres_engine, postgres_schema, postgres_table)
 
@@ -159,7 +159,7 @@ try:
     print(f"📊 Data yang diambil dari PostgreSQL:\n{summary_data.head().to_string(index=False)}")
     print(f"Jumlah baris: {len(summary_data)}")
 
-    # Pastikan kolom rm_value bertipe float
+    # Pastikan kolom rm_value float
     summary_data['rm_value'] = summary_data['rm_value'].astype(float)
 
     # Hitung summary seperti query SQL yang diminta
@@ -202,17 +202,17 @@ try:
         send_telegram_message(f"✅ Summary data disimpan ke file: {summary_file}")
         
         # Kirim file summary ke Telegram
-        send_telegram_file(summary_file, f"📊 Summary data dari tabel {postgres_table}")
+        send_telegram_file(summary_file, f"📊 Summary data dari jadual {postgres_table}")
     except Exception as e:
         print(f"❌ Gagal menyimpan summary ke file: {e}")
         send_telegram_message(f"❌ Gagal menyimpan summary ke file: {e}")
 
 except Exception as e:
-    send_telegram_message(f"❌ Terjadi kesalahan: {e}")
+    send_telegram_message(f"❌ Ada kesalahan: {e}")
 
 finally:
-    # Tutup koneksi
+    # Tutup sambungan
     impala_cursor.close()
     impala_conn.close()
-    print("🔒 Koneksi ke Impala ditutup.")
+    print("🔒 Sambungan ke Impala ditutup.")
     send_telegram_message("🔒 Sambungan ke Impala ditutup.")
